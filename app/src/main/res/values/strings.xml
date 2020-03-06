@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Fat Finger</string>
+    <string name="title_activity_graph">GraphActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+
+    <string name="first_fragment_text">Welcome to the test! For instructions, click next.</string>
+    <string name="instructions_text">Click on the red dots, and avoid clicking the blue dots! I know it\'s boring but it\'s for science so do it!</string>
+</resources>

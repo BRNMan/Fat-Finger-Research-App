@@ -1,22 +1,24 @@
 package com.example.fatfinger;
 
-public class Node {
-    private float x, y;
-    private static float size;
+import androidx.annotation.Nullable;
+
+public class Node implements Comparable<Node>{
+    private double x, y;
+    private static double size;
     private boolean isOn;
 
-    Node(float X, float Y, boolean isOn) {
+    Node(double X, double Y, boolean isOn) {
         this.x = X;
         this.y = Y;
         this.isOn = isOn;
         size = 15.0f;
     }
 
-    float getX() {
+    double getX() {
         return x;
     }
 
-    float getY() {
+    double getY() {
         return y;
     }
 
@@ -28,11 +30,21 @@ public class Node {
         return isOn;
     }
 
-    static float getSize() {
+    static double getSize() {
         return size;
     }
 
-    public static void setSize(float size) {
+    public static void setSize(double size) {
         Node.size = size;
+    }
+
+    @Override
+    public int compareTo(Node o) {
+        int returnVal = Double.compare(this.y, o.y);
+        if(returnVal == 0) {
+            returnVal = Double.compare(this.x, o.x);
+        }
+
+        return returnVal;
     }
 }

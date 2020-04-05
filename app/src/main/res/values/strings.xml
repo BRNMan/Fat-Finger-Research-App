@@ -7,5 +7,5 @@
     <string name="next">Next</string>
 
     <string name="first_fragment_text">Welcome to the test! For instructions, click next.</string>
-    <string name="instructions_text">Click on the red dots, and avoid clicking the blue dots! I know it\'s boring but it\'s for science so do it!</string>
+    <string name="instructions_text">Click on the green dots, and avoid clicking the gray dots! I know it\'s boring but it\'s for science so do it!</string>
 </resources>

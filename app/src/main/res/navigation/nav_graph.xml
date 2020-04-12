@@ -13,7 +13,11 @@
 
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            app:destination="@id/SecondFragment" >
+            <argument
+                android:name="messageText"
+                android:defaultValue="Click on the green dots, and avoid clicking the gray dots! This trial will use a normal clicking method. I know it\'s boring but it\'s for science so do it!" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -23,11 +27,28 @@
 
         <action
             android:id="@+id/action_SecondFragment_to_graphActivity"
-            app:destination="@id/graphActivity" />
+            app:destination="@id/graphActivity" >
+            <argument
+                android:name="trialNum"
+                android:defaultValue="0" />
+        </action>
+        <argument
+            android:name="messageText"
+            app:argType="string"
+            android:defaultValue="Hello there!" />
+        <argument
+            android:name="lensNum"
+            app:argType="integer"
+            android:defaultValue="0" />
     </fragment>
     <activity
         android:id="@+id/graphActivity"
         android:name="com.example.fatfinger.GraphActivity"
         android:label="activity_graph"
-        tools:layout="@layout/activity_graph" />
+        tools:layout="@layout/activity_graph" >
+        <argument
+            android:name="lensNum"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </activity>
 </navigation>

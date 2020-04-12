@@ -3,6 +3,8 @@ package com.example.fatfinger;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -16,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ImageView;
+import android.widget.Magnifier;
 
 import java.util.ArrayList;
 
@@ -46,9 +49,20 @@ public class GraphActivity extends AppCompatActivity {
     final int SEED = 2020;
     int trial = 0;
 
+    int lensNumber = 0;
+
+    Magnifier magnifier;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Get input argument telling us which lens to use.
+        Bundle b = getIntent().getExtras();
+        if(b != null) {
+            lensNumber = b.getInt("lensNum");
+        }
+        Log.println(Log.INFO, "LENSNUM", String.valueOf(lensNumber));
 
         OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
             @Override
@@ -103,6 +117,9 @@ public class GraphActivity extends AppCompatActivity {
                     g = new Graph();
                     targetNodeIndex = g.generateOvalGraph(SEED, 50, 12);
                     drawGraph(g);
+
+                    //If it's the second trial, use a Magnifier
+                    magnifier = new Magnifier(mImageView);
                 }
             }
         });
@@ -110,22 +127,33 @@ public class GraphActivity extends AppCompatActivity {
         startTime = System.currentTimeMillis();
     }
 
-
-
     private OnTouchListener pressListener = new OnTouchListener() {
         public boolean onTouch(View v, MotionEvent me) {
             v.performClick();
 
+            //Use magnifying glass.
+            if(lensNumber == 1) {
+                if(me.getActionMasked() == MotionEvent.ACTION_DOWN || me.getActionMasked() == MotionEvent.ACTION_MOVE) {
+                    magnifier.show(me.getX(), me.getY());
+                    //Redraw the graph and set a crosshairs where your finger is.
+                    mCanvas.drawColor(mColorBackground);
+                    drawGraph(g);
+                    mPaint.setColor(mColorText);
+                    mCanvas.drawCircle(me.getX(), me.getY(), 3, mPaint);
+                    mImageView.invalidate();
+                }
+
+            }
+
             // Lift off tap
             if(me.getActionMasked() == MotionEvent.ACTION_UP) {
+                if(lensNumber == 1) {
+                    magnifier.dismiss();
+                }
                 //We should probably test to find the best seeds and densities using some kind of
                 //button or scroll bar to go through each possible graph.
                 mPaint.setColor(mColorAccent);
                 mCanvas.drawCircle(me.getX(), me.getY(), 10.0f, mPaint);
-//                String text = "Hello World";
-//                mPaintText.setColor(mColorText);
-//                mPaintText.getTextBounds(text, 0, text.length(), mBounds);
-//                mCanvas.drawText(text, 100, 100, mPaintText);
 
                 // Check if the user has clicked on a node.
                 // We need to handle clicks ourselves for this.
@@ -133,7 +161,7 @@ public class GraphActivity extends AppCompatActivity {
 
                 Node targetNode = nodeList.get(targetNodeIndex);
 
-
+                //Get minimum distance Node
                 Node minNode = nodeList.get(0);
                 double minDistance = getDistance(minNode, me.getX(), me.getY());
                 for(Node n : nodeList) {
@@ -144,6 +172,7 @@ public class GraphActivity extends AppCompatActivity {
                     }
                 }
 
+                //Log if a node was clicked, and if it was correct.
                 if(minDistance < Node.getSize()*2) {
                     minNode.setOn(true);
                     if(minNode.getX() == targetNode.getX() && minNode.getY() == targetNode.getY()) {
@@ -157,19 +186,24 @@ public class GraphActivity extends AppCompatActivity {
                 }
                 Log.println(Log.INFO, "Click Data", "X: " + me.getX() +  " Y: " + me.getY()
                 + "  Target Location(x,y): (" + targetNode.getX() + "," + targetNode.getY() + ")" + " Time taken(ms): " + (System.currentTimeMillis() - startTime));
+                //Restart timer.
                 startTime = System.currentTimeMillis();
 
 
+                //Next trial
                 trial++;
                 if(trial >= 3) {
                     Log.println(Log.INFO, "Phase 1 of the experiment is over.", "Hooray!");
+                    //Start second instructions activity.
+                    Intent intent = new Intent().putExtra("lensNum", lensNumber + 1);
+                    setResult(RESULT_OK, intent);
+                    finish();
                 } else {
                     //Clear screen
                     mCanvas.drawColor(mColorBackground);
                     //Start a new graph for the next trial.
                     targetNodeIndex = g.generateOvalGraph(SEED + trial, 50, 12);
                     drawGraph(g);
-
                     mImageView.invalidate();
                 }
             }

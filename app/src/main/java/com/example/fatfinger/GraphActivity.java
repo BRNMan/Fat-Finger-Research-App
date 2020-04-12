@@ -1,5 +1,6 @@
 package com.example.fatfinger;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
@@ -48,6 +49,17 @@ public class GraphActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
+            @Override
+            public void handleOnBackPressed() {
+                // Empty because we don't want the back button to do anything.
+                // The unwavering march of time proceeds forward.
+
+            }
+        };
+        this.getOnBackPressedDispatcher().addCallback(this, callback);
+
         setContentView(R.layout.activity_graph);
 
         //You can set color values in the colors.xml resource file.
@@ -98,6 +110,8 @@ public class GraphActivity extends AppCompatActivity {
         startTime = System.currentTimeMillis();
     }
 
+
+
     private OnTouchListener pressListener = new OnTouchListener() {
         public boolean onTouch(View v, MotionEvent me) {
             v.performClick();
@@ -147,7 +161,7 @@ public class GraphActivity extends AppCompatActivity {
 
 
                 trial++;
-                if(trial >= 10) {
+                if(trial >= 3) {
                     Log.println(Log.INFO, "Phase 1 of the experiment is over.", "Hooray!");
                 } else {
                     //Clear screen

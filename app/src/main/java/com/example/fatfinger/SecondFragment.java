@@ -15,6 +15,8 @@ import androidx.navigation.fragment.NavHostFragment;
 
 public class SecondFragment extends Fragment {
 
+    private TextView textView;
+
     private int lensNum = 0;
     @Override
     public View onCreateView(
@@ -29,7 +31,7 @@ public class SecondFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //Set text box to input string.
         final Bundle b = getArguments();
-        TextView textView = view.findViewById(R.id.textview_second);
+        textView = view.findViewById(R.id.textview_second);
         if(b != null) {
             textView.setText(b.getString("messageText"));
         }
@@ -48,7 +50,8 @@ public class SecondFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             lensNum = data.getIntExtra("lensNum", 0);
-            //textView.setText("something");
+            String message = data.getStringExtra("messageText");
+            textView.setText(message);
         }
     }
 }

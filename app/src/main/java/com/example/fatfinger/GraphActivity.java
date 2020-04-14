@@ -3,11 +3,8 @@ package com.example.fatfinger;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -115,7 +112,7 @@ public class GraphActivity extends AppCompatActivity {
                     //We should probably test to find the best seeds and densities using some kind of
                     //button or scroll bar to go through each possible graph.
                     g = new Graph();
-                    targetNodeIndex = g.generateOvalGraph(SEED, 50, 12);
+                    targetNodeIndex = g.generateGraph(SEED, 50, 12, 10);
                     drawGraph(g);
 
                     //If it's the second trial, use a Magnifier
@@ -142,7 +139,6 @@ public class GraphActivity extends AppCompatActivity {
                     mCanvas.drawCircle(me.getX(), me.getY(), 3, mPaint);
                     mImageView.invalidate();
                 }
-
             }
 
             // Lift off tap
@@ -155,54 +151,27 @@ public class GraphActivity extends AppCompatActivity {
                 mPaint.setColor(mColorAccent);
                 mCanvas.drawCircle(me.getX(), me.getY(), 10.0f, mPaint);
 
-                // Check if the user has clicked on a node.
-                // We need to handle clicks ourselves for this.
-                ArrayList<Node> nodeList = g.getNodes();
-
-                Node targetNode = nodeList.get(targetNodeIndex);
-
-                //Get minimum distance Node
-                Node minNode = nodeList.get(0);
-                double minDistance = getDistance(minNode, me.getX(), me.getY());
-                for(Node n : nodeList) {
-                    double distance = getDistance(n, me.getX(), me.getY());
-                    if(distance < minDistance) {
-                        minNode = n;
-                        minDistance = distance;
-                    }
-                }
-
-                //Log if a node was clicked, and if it was correct.
-                if(minDistance < Node.getSize()*2) {
-                    minNode.setOn(true);
-                    if(minNode.getX() == targetNode.getX() && minNode.getY() == targetNode.getY()) {
-                        Log.println(Log.INFO, "Target Clicked", "got it");
-                    } else {
-                        Log.println(Log.INFO, "Other Node Clicked", "Target Location(x,y): (" + targetNode.getX() + "," + targetNode.getY() + ") "
-                                + "Other Node Location(x,y): (" + minNode.getX() + "," + minNode.getY() + ")");
-                    }
-                } else {
-                    Log.println(Log.INFO, "Background Clicked", "you missed" + minDistance);
-                }
-                Log.println(Log.INFO, "Click Data", "X: " + me.getX() +  " Y: " + me.getY()
-                + "  Target Location(x,y): (" + targetNode.getX() + "," + targetNode.getY() + ")" + " Time taken(ms): " + (System.currentTimeMillis() - startTime));
+                checkNodeClicked(me);
                 //Restart timer.
                 startTime = System.currentTimeMillis();
 
-
                 //Next trial
                 trial++;
-                if(trial >= 3) {
-                    Log.println(Log.INFO, "Phase 1 of the experiment is over.", "Hooray!");
-                    //Start second instructions activity.
-                    Intent intent = new Intent().putExtra("lensNum", lensNumber + 1);
-                    setResult(RESULT_OK, intent);
-                    finish();
+                if(trial == 21) {
+                    changeLens();
                 } else {
+                    // Make the graph g have different densities for each 1/3 of trials
+                    if(trial/7 == 0) {
+                        targetNodeIndex = g.generateGraph(SEED + trial, 50, 12, 10);
+                    } else if (trial/7 == 1) {
+                        targetNodeIndex = g.generateGraph(SEED + trial, 50, 12, 15);
+                    } else {
+                        targetNodeIndex = g.generateGraph(SEED + trial, 30, 40, 50);
+                    }
+
                     //Clear screen
                     mCanvas.drawColor(mColorBackground);
                     //Start a new graph for the next trial.
-                    targetNodeIndex = g.generateOvalGraph(SEED + trial, 50, 12);
                     drawGraph(g);
                     mImageView.invalidate();
                 }
@@ -210,6 +179,59 @@ public class GraphActivity extends AppCompatActivity {
             return true;
         }
     };
+
+    private void changeLens() {
+        //Start second instructions activity.
+        Intent intent = new Intent().putExtra("lensNum", lensNumber + 1);
+        if(lensNumber == 0) {
+            Log.println(Log.INFO, "Phase 1 of the experiment is over.", "Hooray!");
+            intent.putExtra("messageText", "This trial will use a magnifying lens that will activate when you hold down the mouse button. When you lift your finger off, you will select the dot.");
+
+        } else if(lensNumber == 1) {
+            Log.println(Log.INFO, "Phase 2 of the experiment is over.", "Hooray!");
+            //Start third instructions activity.
+            intent.putExtra("messageText", "This trial will use a bubble cursor.");
+        } else {
+            Log.println(Log.INFO, "Phase 3 of the experiment is over.", "Hooray!");
+            intent.putExtra("messageText", "You're done!");
+        }
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    private void checkNodeClicked(MotionEvent me) {
+        // Check if the user has clicked on a node.
+        // We need to handle clicks ourselves for this.
+        ArrayList<Node> nodeList = g.getNodes();
+
+        Node targetNode = nodeList.get(targetNodeIndex);
+
+        //Get minimum distance Node
+        Node minNode = nodeList.get(0);
+        double minDistance = getDistance(minNode, me.getX(), me.getY());
+        for(Node n : nodeList) {
+            double distance = getDistance(n, me.getX(), me.getY());
+            if(distance < minDistance) {
+                minNode = n;
+                minDistance = distance;
+            }
+        }
+
+        //Log if a node was clicked, and if it was correct.
+        if(minDistance < Node.getSize()*2) {
+            minNode.setOn(true);
+            if(minNode.getX() == targetNode.getX() && minNode.getY() == targetNode.getY()) {
+                Log.println(Log.INFO, "Target Clicked", "got it");
+            } else {
+                Log.println(Log.INFO, "Other Node Clicked", "Target Location(x,y): (" + targetNode.getX() + "," + targetNode.getY() + ") "
+                        + "Other Node Location(x,y): (" + minNode.getX() + "," + minNode.getY() + ")");
+            }
+        } else {
+            Log.println(Log.INFO, "Background Clicked", "you missed" + minDistance);
+        }
+        Log.println(Log.INFO, "Click Data", "X: " + me.getX() +  " Y: " + me.getY()
+                + "  Target Location(x,y): (" + targetNode.getX() + "," + targetNode.getY() + ")" + " Time taken(ms): " + (System.currentTimeMillis() - startTime));
+    }
 
     private double getDistance(Node n, double x, double y) {
         if(n==null) {

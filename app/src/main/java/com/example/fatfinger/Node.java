@@ -1,5 +1,7 @@
 package com.example.fatfinger;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 
 public class Node implements Comparable<Node>{
@@ -11,7 +13,6 @@ public class Node implements Comparable<Node>{
         this.x = X;
         this.y = Y;
         this.isOn = isOn;
-        size = 15.0f;
     }
 
     double getX() {
@@ -34,9 +35,7 @@ public class Node implements Comparable<Node>{
         return size;
     }
 
-    public static void setSize(double size) {
-        Node.size = size;
-    }
+    public static void setSize(double size) { Node.size = size; }
 
     @Override
     public int compareTo(Node o) {

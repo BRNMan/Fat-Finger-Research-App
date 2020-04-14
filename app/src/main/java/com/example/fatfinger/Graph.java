@@ -1,11 +1,8 @@
 package com.example.fatfinger;
 
 import android.content.res.Resources;
-import android.security.ConfirmationNotAvailableException;
-import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
 class Graph {
@@ -18,43 +15,7 @@ class Graph {
         nodeList = new ArrayList<>();
     }
 
-    public void generateRandomGraph(int seed, int density) {
-        nodeList.clear();
-        //Ideally, we want to put more points on bigger screens, and keep the node size the same in inches.
-        //I'm going to worry about that later. For now, assume the same screen size.
-        int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-        //int screenArea = screenWidth*screenHeight;
-
-        //Give seed to random number generator we will be using for consistency.
-        //This Random class must return the same numbers every time for a given seed.
-        Random generator = new Random(seed);
-
-        //Scale proportionally to density and area and make random points in x and y axes.
-        for(int i = 0; i < density; i++) {
-            float nodeX, nodeY;
-            Node n = new Node(generator.nextDouble()*screenWidth, generator.nextDouble()*screenHeight, false);
-            nodeList.add(n);
-        }
-    }
-
-
-    public void generateEvenlySpacedGraph(int density) {
-        nodeList.clear();
-        int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-        float aspectRatio = screenHeight/screenWidth;
-        Node.setSize(15);
-        for(int y = 0; y < screenHeight; y += (int)(aspectRatio * screenHeight/density)) {
-            for(int x = 0; x < screenWidth; x += (int)((1/aspectRatio) * screenHeight/density)) {
-                Node n = new Node(x, y, false);
-                nodeList.add(n);
-            }
-        }
-    }
-
-
-    public int generateOvalGraph(int seed, int numberOfClusters, int overlapPixels) {
+    public int generateGraph(int seed, int numberOfClusters, double overlapPixels, double size ) {
         nodeList.clear();
         int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
@@ -71,8 +32,7 @@ class Graph {
 
         double yOffset = 0.3;
         double topY = screenHeight*yOffset;
-
-        Node.setSize(15);
+        Node.setSize(size);
         //Generates three nodes at a time
         for(int i = 0; i < numberOfClusters; i++) {
             Node n1, n2, n3;

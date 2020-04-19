@@ -6,13 +6,14 @@ import androidx.annotation.Nullable;
 
 public class Node implements Comparable<Node>{
     private double x, y;
-    private static double size;
+    private double size;
     private boolean isOn;
 
-    Node(double X, double Y, boolean isOn) {
+    Node(double X, double Y, boolean isOn, double size) {
         this.x = X;
         this.y = Y;
         this.isOn = isOn;
+        this.size = size;
     }
 
     double getX() {
@@ -31,11 +32,11 @@ public class Node implements Comparable<Node>{
         return isOn;
     }
 
-    static double getSize() {
+    public double getSize() {
         return size;
     }
 
-    public static void setSize(double size) { Node.size = size; }
+    public void setSize(double size) { this.size = size; }
 
     @Override
     public int compareTo(Node o) {

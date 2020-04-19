@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorOffNode">#555555</color>
-    <color name="colorOnNode">#40f04f</color>
+    <color name="colorOffNode">#888888</color>
+    <color name="colorOnNode">#ffa500</color>
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#c08430</color>
-    <color name="colorBackground">#1496bb</color>
+    <color name="colorBackground">#ffffff</color>
     <color name="colorText">#141414</color>
 </resources>

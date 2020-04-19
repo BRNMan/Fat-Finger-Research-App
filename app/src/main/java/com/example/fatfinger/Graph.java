@@ -1,6 +1,7 @@
 package com.example.fatfinger;
 
 import android.content.res.Resources;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -15,16 +16,17 @@ class Graph {
         nodeList = new ArrayList<>();
     }
 
-    public int generateGraph(int seed, int numberOfClusters, double overlapPixels, double size ) {
+    //Number of points must be greater than 5.
+    //Size must be greater than 7.
+    public int generateGraph(int seed, int numberOfPoints, double size) {
         nodeList.clear();
         int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
 
         Random generator = new Random(seed);
-        int targetIndex = generator.nextInt() % (3*numberOfClusters);
-        //Because % leaves in negative numbers and we cant have a negative index.
-        if(targetIndex < 0) {
-            targetIndex *= -1;
+        //Sequential seeds produce non random numbers, so run through a few times to increase randomness.
+        for(int i = 0; i < 20; i++) {
+            generator.nextDouble();
         }
 
         double xOffset = 0.15;
@@ -32,41 +34,41 @@ class Graph {
 
         double yOffset = 0.3;
         double topY = screenHeight*yOffset;
-        Node.setSize(size);
-        //Generates three nodes at a time
-        for(int i = 0; i < numberOfClusters; i++) {
-            Node n1, n2, n3;
-            double x, y;
+        //Generates first five points
+        double x,y;
+        x = generator.nextDouble()*screenWidth*(1-2*xOffset) + leftX;
+        y = generator.nextDouble()*screenHeight*(1-2*yOffset) + topY;
+
+        nodeList.add(new Node(x, y, true, size));
+        nodeList.add(new Node(x - 2*size, y, false, size));
+        nodeList.add(new Node(x + 2*size, y, false, size));
+        nodeList.add(new Node(x, y - 2*size, false, size));
+        nodeList.add(new Node(x, y + 2*size, false, size));
+
+        double centerX = x, centerY = y;
+
+        //Makes rest of points randomly dispersed away from first five points.
+        for(int i = 5; i < numberOfPoints; i++) {
             x = generator.nextDouble()*screenWidth*(1-2*xOffset) + leftX;
             y = generator.nextDouble()*screenHeight*(1-2*yOffset) + topY;
-            boolean isN1On = false, isN2On = false, isN3On = false;
-
-            if(i == targetIndex/3) {
-                int onNode = targetIndex %3;
-                switch(onNode) {
-                    case 0:
-                        isN1On = true;
-                        break;
-                    case 1:
-                        isN2On = true;
-                        break;
-                    case 2:
-                    default:
-                        isN3On = true;
-                }
-
+            //Generate a point that's outside of the box formed by the initial points.
+            while(x > centerX - 3*size && x < centerX + 3*size
+            && y > centerY - 3*size && y < centerY + 3*size) {
+                x = generator.nextDouble()*screenWidth*(1-2*xOffset) + leftX;
+                y = generator.nextDouble()*screenHeight*(1-2*yOffset) + topY;
             }
 
-            //Make a triangle of nodes
-            n1 = new Node(x, y, isN1On);
-            n2 = new Node(x + overlapPixels, y, isN2On);
-            n3 = new Node(x + overlapPixels/2, y - overlapPixels, isN3On);
-            nodeList.add(n1);
-            nodeList.add(n2);
-            nodeList.add(n3);
+            //Generate random size between 7 and size
+            double randSize = generator.nextDouble() * (size - 7);
+            if(randSize < 0) {
+                randSize *= -1;
+            }
+            randSize += 8;
+
+            nodeList.add(new Node(x, y, false, randSize));
         }
 
-        return targetIndex;
+        return 0;
     }
 
     ArrayList<Node> getNodes() {

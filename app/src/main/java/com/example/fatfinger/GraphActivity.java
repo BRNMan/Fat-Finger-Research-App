@@ -112,7 +112,7 @@ public class GraphActivity extends AppCompatActivity {
                     //We should probably test to find the best seeds and densities using some kind of
                     //button or scroll bar to go through each possible graph.
                     g = new Graph();
-                    targetNodeIndex = g.generateGraph(SEED, 50, 12, 10);
+                    targetNodeIndex = g.generateGraph(SEED, 50, 15);
                     drawGraph(g);
 
                     //If it's the second trial, use a Magnifier
@@ -162,11 +162,11 @@ public class GraphActivity extends AppCompatActivity {
                 } else {
                     // Make the graph g have different densities for each 1/3 of trials
                     if(trial/7 == 0) {
-                        targetNodeIndex = g.generateGraph(SEED + trial, 50, 12, 10);
+                        targetNodeIndex = g.generateGraph(SEED + trial, 50, 15);
                     } else if (trial/7 == 1) {
-                        targetNodeIndex = g.generateGraph(SEED + trial, 50, 12, 15);
+                        targetNodeIndex = g.generateGraph(SEED + trial, 50,  22);
                     } else {
-                        targetNodeIndex = g.generateGraph(SEED + trial, 30, 40, 50);
+                        targetNodeIndex = g.generateGraph(SEED + trial, 40, 30);
                     }
 
                     //Clear screen
@@ -190,7 +190,7 @@ public class GraphActivity extends AppCompatActivity {
         } else if(lensNumber == 1) {
             Log.println(Log.INFO, "Phase 2 of the experiment is over.", "Hooray!");
             //Start third instructions activity.
-            intent.putExtra("messageText", "This trial will use a bubble cursor.");
+            intent.putExtra("messageText", "This trial will use a bubble cursor. Just tap like normal, it's just a slightly more lenient version of the regular cursor.");
         } else {
             Log.println(Log.INFO, "Phase 3 of the experiment is over.", "Hooray!");
             intent.putExtra("messageText", "You're done!");
@@ -218,7 +218,8 @@ public class GraphActivity extends AppCompatActivity {
         }
 
         //Log if a node was clicked, and if it was correct.
-        if(minDistance < Node.getSize()*2) {
+        //On the first trial, check that you actually clicked the button, on the second, jusst click the closest point (bubble cursor)
+        if(lensNumber == 0 && minDistance < minNode.getSize()*2) {
             minNode.setOn(true);
             if(minNode.getX() == targetNode.getX() && minNode.getY() == targetNode.getY()) {
                 Log.println(Log.INFO, "Target Clicked", "got it");
@@ -251,7 +252,7 @@ public class GraphActivity extends AppCompatActivity {
             } else {
                 mPaint.setColor(mColorOffNode);
             }
-            mCanvas.drawCircle((float)node.getX(), (float)node.getY(), (float)Node.getSize(), mPaint);
+            mCanvas.drawCircle((float)node.getX(), (float)node.getY(), (float)node.getSize(), mPaint);
         }
     }
 }

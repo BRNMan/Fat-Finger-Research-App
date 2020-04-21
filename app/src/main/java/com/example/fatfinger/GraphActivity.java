@@ -112,7 +112,7 @@ public class GraphActivity extends AppCompatActivity {
                     //We should probably test to find the best seeds and densities using some kind of
                     //button or scroll bar to go through each possible graph.
                     g = new Graph();
-                    targetNodeIndex = g.generateGraph(SEED, 50, 15);
+                    targetNodeIndex = g.generateGraph(SEED, 50, 15, 2);
                     drawGraph(g);
 
                     //If it's the second trial, use a Magnifier
@@ -157,16 +157,24 @@ public class GraphActivity extends AppCompatActivity {
 
                 //Next trial
                 trial++;
-                if(trial == 21) {
+                if(trial == 27) {
                     changeLens();
                 } else {
                     // Make the graph g have different densities for each 1/3 of trials
-                    if(trial/7 == 0) {
-                        targetNodeIndex = g.generateGraph(SEED + trial, 50, 15);
-                    } else if (trial/7 == 1) {
-                        targetNodeIndex = g.generateGraph(SEED + trial, 50,  22);
+                    double spacing;
+                    if(trial%3 == 0) {
+                        spacing = 2;
+                    } else if(trial%3 == 1) {
+                        spacing = 3;
                     } else {
-                        targetNodeIndex = g.generateGraph(SEED + trial, 40, 30);
+                        spacing = 4;
+                    }
+                    if(trial/9 == 0) {
+                        targetNodeIndex = g.generateGraph(SEED + trial, 50, 15, spacing);
+                    } else if (trial/9 == 1) {
+                        targetNodeIndex = g.generateGraph(SEED + trial, 50,  22, spacing);
+                    } else {
+                        targetNodeIndex = g.generateGraph(SEED + trial, 40, 30, spacing);
                     }
 
                     //Clear screen
@@ -184,16 +192,18 @@ public class GraphActivity extends AppCompatActivity {
         //Start second instructions activity.
         Intent intent = new Intent().putExtra("lensNum", lensNumber + 1);
         if(lensNumber == 0) {
-            Log.println(Log.INFO, "Phase 1 of the experiment is over.", "Hooray!");
-            intent.putExtra("messageText", "This trial will use a magnifying lens that will activate when you hold down the mouse button. When you lift your finger off, you will select the dot.");
+            Log.println(Log.INFO, "Phase 1 Complete.", "Hooray!");
+            intent.putExtra("messageText", "Part 2/3. This trial will use a magnifying lens that will activate when you hold down the mouse button. When you lift your finger off, you will select the dot.");
 
         } else if(lensNumber == 1) {
-            Log.println(Log.INFO, "Phase 2 of the experiment is over.", "Hooray!");
+            Log.println(Log.INFO, "Phase 2 Complete.", "Hooray!");
             //Start third instructions activity.
-            intent.putExtra("messageText", "This trial will use a bubble cursor. Just tap like normal, it's just a slightly more lenient version of the regular cursor.");
+            intent.putExtra("messageText", "Part 3/3. This trial will use a bubble cursor. Just tap like normal, it's just a slightly more lenient version of the regular cursor.");
         } else {
-            Log.println(Log.INFO, "Phase 3 of the experiment is over.", "Hooray!");
-            intent.putExtra("messageText", "You're done!");
+            //Send Logs to server and close the app.
+            intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            startActivity(intent);
         }
         setResult(RESULT_OK, intent);
         finish();
@@ -219,19 +229,15 @@ public class GraphActivity extends AppCompatActivity {
 
         //Log if a node was clicked, and if it was correct.
         //On the first trial, check that you actually clicked the button, on the second, jusst click the closest point (bubble cursor)
+        boolean targetClicked = false;
+
         if(lensNumber == 0 && minDistance < minNode.getSize()*2) {
-            minNode.setOn(true);
             if(minNode.getX() == targetNode.getX() && minNode.getY() == targetNode.getY()) {
-                Log.println(Log.INFO, "Target Clicked", "got it");
-            } else {
-                Log.println(Log.INFO, "Other Node Clicked", "Target Location(x,y): (" + targetNode.getX() + "," + targetNode.getY() + ") "
-                        + "Other Node Location(x,y): (" + minNode.getX() + "," + minNode.getY() + ")");
+                targetClicked = true;
             }
-        } else {
-            Log.println(Log.INFO, "Background Clicked", "you missed" + minDistance);
         }
-        Log.println(Log.INFO, "Click Data", "X: " + me.getX() +  " Y: " + me.getY()
-                + "  Target Location(x,y): (" + targetNode.getX() + "," + targetNode.getY() + ")" + " Time taken(ms): " + (System.currentTimeMillis() - startTime));
+        Log.println(Log.INFO, "Click_Data", "Trial_No: " + trial + " ,Target_Clicked: " + targetClicked + " ,Click_X: " + me.getX() +  " ,Click_Y: " + me.getY()
+                + " ,Target_X: " + targetNode.getX() + " ,Target_Y: " + targetNode.getY() + " ,Milliseconds_Taken: " + (System.currentTimeMillis() - startTime));
     }
 
     private double getDistance(Node n, double x, double y) {

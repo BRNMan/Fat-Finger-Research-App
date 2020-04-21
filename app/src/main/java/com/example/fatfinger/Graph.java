@@ -18,7 +18,7 @@ class Graph {
 
     //Number of points must be greater than 5.
     //Size must be greater than 7.
-    public int generateGraph(int seed, int numberOfPoints, double size) {
+    public int generateGraph(int seed, int numberOfPoints, double size, double spacing) {
         nodeList.clear();
         int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
@@ -40,20 +40,21 @@ class Graph {
         y = generator.nextDouble()*screenHeight*(1-2*yOffset) + topY;
 
         nodeList.add(new Node(x, y, true, size));
-        nodeList.add(new Node(x - 2*size, y, false, size));
-        nodeList.add(new Node(x + 2*size, y, false, size));
-        nodeList.add(new Node(x, y - 2*size, false, size));
-        nodeList.add(new Node(x, y + 2*size, false, size));
+        nodeList.add(new Node(x - spacing*size, y, false, size));
+        nodeList.add(new Node(x + spacing*size, y, false, size));
+        nodeList.add(new Node(x, y - spacing*size, false, size));
+        nodeList.add(new Node(x, y + spacing*size, false, size));
 
         double centerX = x, centerY = y;
 
+        double boundary = spacing + 1;
         //Makes rest of points randomly dispersed away from first five points.
         for(int i = 5; i < numberOfPoints; i++) {
             x = generator.nextDouble()*screenWidth*(1-2*xOffset) + leftX;
             y = generator.nextDouble()*screenHeight*(1-2*yOffset) + topY;
             //Generate a point that's outside of the box formed by the initial points.
-            while(x > centerX - 3*size && x < centerX + 3*size
-            && y > centerY - 3*size && y < centerY + 3*size) {
+            while(x > centerX - boundary*size && x < centerX + boundary*size
+            && y > centerY - boundary*size && y < centerY + boundary*size) {
                 x = generator.nextDouble()*screenWidth*(1-2*xOffset) + leftX;
                 y = generator.nextDouble()*screenHeight*(1-2*yOffset) + topY;
             }

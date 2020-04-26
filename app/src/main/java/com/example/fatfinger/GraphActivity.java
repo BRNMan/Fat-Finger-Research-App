@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.Magnifier;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GraphActivity extends AppCompatActivity {
 
@@ -49,6 +50,8 @@ public class GraphActivity extends AppCompatActivity {
     int lensNumber = 0;
 
     Magnifier magnifier;
+    
+    private Data data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +115,7 @@ public class GraphActivity extends AppCompatActivity {
                     //We should probably test to find the best seeds and densities using some kind of
                     //button or scroll bar to go through each possible graph.
                     g = new Graph();
-                    targetNodeIndex = g.generateGraph(SEED, 50, 15, 2);
+                    targetNodeIndex = g.generateGraph(SEED, 50, 7, 2);
                     drawGraph(g);
 
                     //If it's the second trial, use a Magnifier
@@ -122,6 +125,7 @@ public class GraphActivity extends AppCompatActivity {
         });
 
         startTime = System.currentTimeMillis();
+        data = new Data();
     }
 
     private OnTouchListener pressListener = new OnTouchListener() {
@@ -170,11 +174,11 @@ public class GraphActivity extends AppCompatActivity {
                         spacing = 4;
                     }
                     if(trial/9 == 0) {
-                        targetNodeIndex = g.generateGraph(SEED + trial, 50, 15, spacing);
+                        targetNodeIndex = g.generateGraph(SEED + trial, 50, 7, spacing);
                     } else if (trial/9 == 1) {
-                        targetNodeIndex = g.generateGraph(SEED + trial, 50,  22, spacing);
+                        targetNodeIndex = g.generateGraph(SEED + trial, 50,  14, spacing);
                     } else {
-                        targetNodeIndex = g.generateGraph(SEED + trial, 40, 30, spacing);
+                        targetNodeIndex = g.generateGraph(SEED + trial, 40, 20, spacing);
                     }
 
                     //Clear screen
@@ -200,7 +204,9 @@ public class GraphActivity extends AppCompatActivity {
             //Start third instructions activity.
             intent.putExtra("messageText", "Part 3/3. This trial will use a bubble cursor. Just tap like normal, it's just a slightly more lenient version of the regular cursor.");
         } else {
-            //Send Logs to server and close the app.
+            //Send logs to server
+            data.sendDataToServer();
+            //Close the app.
             intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_HOME);
             startActivity(intent);
@@ -236,6 +242,7 @@ public class GraphActivity extends AppCompatActivity {
                 targetClicked = true;
             }
         }
+        data.addRow(lensNumber, trial, targetClicked, me.getX(), me.getY(), targetNode.getX(), targetNode.getY(), (System.currentTimeMillis() - startTime));
         Log.println(Log.INFO, "Click_Data", "Trial_No: " + trial + " ,Target_Clicked: " + targetClicked + " ,Click_X: " + me.getX() +  " ,Click_Y: " + me.getY()
                 + " ,Target_X: " + targetNode.getX() + " ,Target_Y: " + targetNode.getY() + " ,Milliseconds_Taken: " + (System.currentTimeMillis() - startTime));
     }
@@ -252,7 +259,6 @@ public class GraphActivity extends AppCompatActivity {
         ArrayList<Node> nodes = g.getNodes();
 
         for(Node node : nodes) {
-            // Log.println(Log.INFO, "HELLO", node.getX() + "    " + node.getY() + "   " + Node.getSize());
             if(node.isOn()) {
                 mPaint.setColor(mColorOnNode);
             } else {
